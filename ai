@@ -10,7 +10,7 @@ SESSION_ID = "cli_default"
 
 
 def chat(message: str) -> str:
-    r = httpx.post(f"{API}/chat", json={"message": message, "session_id": SESSION_ID}, timeout=120)
+    r = httpx.post(f"{API}/chat", json={"message": message, "session_id": SESSION_ID}, timeout=300)
     return r.json()["response"]
 
 

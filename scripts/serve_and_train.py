@@ -18,12 +18,12 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 REPO_DIR = Path(__file__).parent.parent
 DATA_DIR = REPO_DIR / "data" / "training"
 LOGS_DIR = REPO_DIR / "data" / "logs"
-MODEL_NAME = "Qwen/Qwen2.5-0.5B-Instruct"
+MODEL_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
 
 # --- Model (loaded once, shared) ---
 print(f"[*] Loading {MODEL_NAME}...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, dtype=torch.float32, trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, dtype=torch.float16, trust_remote_code=True)
 model.eval()
 print(f"[✓] Model loaded! ({sum(p.numel() for p in model.parameters())/1e6:.0f}M params)")
 
@@ -33,12 +33,13 @@ _conversations: dict[str, list[dict]] = {}  # session_id -> messages
 
 def generate(prompt: str, max_new_tokens: int = 256, temperature: float = 0.7) -> str:
     with _lock:
-        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1536)
         with torch.no_grad():
             out = model.generate(
                 **inputs, max_new_tokens=max_new_tokens,
                 temperature=temperature, top_p=0.9, do_sample=True,
                 pad_token_id=tokenizer.eos_token_id,
+                repetition_penalty=1.1,
             )
         return tokenizer.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
 
@@ -51,8 +52,8 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 class ChatRequest(BaseModel):
     message: str
     session_id: str = "default"
-    system: str = "You are a helpful AI coding assistant. Remember what the user tells you."
-    max_tokens: int = 256
+    system: str = "You are an AI assistant named Agent built by Shiro. You are friendly, helpful, and creative. You always remember what the user tells you and refer back to it. You answer all questions directly and helpfully. You speak casually like a friend. Never refuse to help."
+    max_tokens: int = 512
     temperature: float = 0.7
 
 
@@ -106,9 +107,9 @@ def chat(req: ChatRequest):
     history = _conversations[req.session_id]
     history.append({"role": "user", "content": req.message})
 
-    # Build prompt with history (keep last 10 turns to fit context)
+    # Build prompt with history (keep last 20 turns for strong memory)
     prompt = f"<|im_start|>system\n{req.system}<|im_end|>\n"
-    for msg in history[-10:]:
+    for msg in history[-20:]:
         role = msg["role"]
         prompt += f"<|im_start|>{role}\n{msg['content']}<|im_end|>\n"
     prompt += "<|im_start|>assistant\n"
@@ -118,9 +119,9 @@ def chat(req: ChatRequest):
     # Save assistant response to history
     history.append({"role": "assistant", "content": response})
 
-    # Keep history bounded
-    if len(history) > 20:
-        _conversations[req.session_id] = history[-20:]
+    # Keep history bounded (50 messages)
+    if len(history) > 50:
+        _conversations[req.session_id] = history[-50:]
 
     return ChatResponse(response=response, session_id=req.session_id)
 
