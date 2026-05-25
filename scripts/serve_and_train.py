@@ -107,6 +107,15 @@ def chat(req: ChatRequest):
     history = _conversations[req.session_id]
     history.append({"role": "user", "content": req.message})
 
+    # Smart token routing: short questions get short answers (faster)
+    msg_len = len(req.message.split())
+    if msg_len < 5:
+        max_tok = 64
+    elif msg_len < 15:
+        max_tok = 128
+    else:
+        max_tok = req.max_tokens
+
     # Build prompt with history (keep last 20 turns for strong memory)
     prompt = f"<|im_start|>system\n{req.system}<|im_end|>\n"
     for msg in history[-20:]:
@@ -114,7 +123,7 @@ def chat(req: ChatRequest):
         prompt += f"<|im_start|>{role}\n{msg['content']}<|im_end|>\n"
     prompt += "<|im_start|>assistant\n"
 
-    response = generate(prompt, max_new_tokens=req.max_tokens, temperature=req.temperature)
+    response = generate(prompt, max_new_tokens=max_tok, temperature=req.temperature)
 
     # Save assistant response to history
     history.append({"role": "assistant", "content": response})
