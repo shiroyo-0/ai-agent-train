@@ -102,7 +102,7 @@ training_args = TrainingArguments(
 trainer = SFTTrainer(
     model=model,
     train_dataset=dataset,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,
     args=training_args,
     max_seq_length=1024,
 )
