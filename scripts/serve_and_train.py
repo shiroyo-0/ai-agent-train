@@ -30,8 +30,14 @@ print(f"[✓] Model loaded! ({sum(p.numel() for p in model.parameters())/1e6:.0f
 _lock = threading.Lock()
 _conversations: dict[str, list[dict]] = {}  # session_id -> messages
 
+# DO GenAI (big model for complex tasks)
+DO_API_URL = "https://q2ylqsep42i4ekfzmmnmvdwp.agents.do-ai.run/api/v1/chat/completions"
+DO_API_KEY = "5aGk6Ek02TRv_HRe-5SS3fdetaERjq_5"
 
-def generate(prompt: str, max_new_tokens: int = 256, temperature: float = 0.7) -> str:
+import httpx
+
+def generate_local(prompt: str, max_new_tokens: int = 256, temperature: float = 0.7) -> str:
+    """Local 1.5B model - fast for short responses."""
     with _lock:
         inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1536)
         with torch.no_grad():
@@ -42,6 +48,22 @@ def generate(prompt: str, max_new_tokens: int = 256, temperature: float = 0.7) -
                 repetition_penalty=1.1,
             )
         return tokenizer.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+
+
+def generate_cloud(messages: list[dict], temperature: float = 0.7) -> str:
+    """DO GenAI 397B model - for complex/long responses."""
+    try:
+        r = httpx.post(DO_API_URL, json={"messages": messages, "model": "default", "temperature": temperature},
+                       headers={"Authorization": f"Bearer {DO_API_KEY}", "Content-Type": "application/json"}, timeout=60)
+        data = r.json()
+        return data["choices"][0]["message"]["content"]
+    except Exception as e:
+        return f"[Cloud error: {e}]"
+
+
+def generate(prompt: str, max_new_tokens: int = 256, temperature: float = 0.7) -> str:
+    """Backward compat for training loop."""
+    return generate_local(prompt, max_new_tokens, temperature)
 
 
 # --- Chat API ---
@@ -100,35 +122,34 @@ update();setInterval(update,30000);
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
-    # Build conversation history
     if req.session_id not in _conversations:
         _conversations[req.session_id] = []
 
     history = _conversations[req.session_id]
     history.append({"role": "user", "content": req.message})
 
-    # Smart token routing: short questions get short answers (faster)
+    # Smart routing: short/simple → local, long/complex → cloud (397B)
     msg_len = len(req.message.split())
-    if msg_len < 5:
-        max_tok = 64
-    elif msg_len < 15:
-        max_tok = 128
+    use_cloud = msg_len > 10 or any(kw in req.message.lower() for kw in [
+        "jelaskan", "explain", "buatkan", "write", "code", "buat", "kasih",
+        "how to", "gimana", "caranya", "analisis", "review", "tolong",
+    ])
+
+    if use_cloud:
+        # Use DO GenAI 397B
+        messages = [{"role": "system", "content": req.system}]
+        for msg in history[-20:]:
+            messages.append({"role": msg["role"], "content": msg["content"]})
+        response = generate_cloud(messages, temperature=req.temperature)
     else:
-        max_tok = req.max_tokens
+        # Use local 1.5B (fast)
+        prompt = f"<|im_start|>system\n{req.system}<|im_end|>\n"
+        for msg in history[-20:]:
+            prompt += f"<|im_start|>{msg['role']}\n{msg['content']}<|im_end|>\n"
+        prompt += "<|im_start|>assistant\n"
+        response = generate_local(prompt, max_new_tokens=128, temperature=req.temperature)
 
-    # Build prompt with history (keep last 20 turns for strong memory)
-    prompt = f"<|im_start|>system\n{req.system}<|im_end|>\n"
-    for msg in history[-20:]:
-        role = msg["role"]
-        prompt += f"<|im_start|>{role}\n{msg['content']}<|im_end|>\n"
-    prompt += "<|im_start|>assistant\n"
-
-    response = generate(prompt, max_new_tokens=max_tok, temperature=req.temperature)
-
-    # Save assistant response to history
     history.append({"role": "assistant", "content": response})
-
-    # Keep history bounded (50 messages)
     if len(history) > 50:
         _conversations[req.session_id] = history[-50:]
 

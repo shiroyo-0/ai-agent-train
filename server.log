@@ -1,15 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-[*] Loading Qwen/Qwen2.5-1.5B-Instruct...
-Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   0%|          | 1/338 [00:00<03:42,  1.51it/s]Loading weights:  37%|███▋      | 125/338 [00:00<00:01, 204.72it/s]Loading weights:  52%|█████▏    | 175/338 [00:01<00:00, 202.30it/s]Loading weights:  63%|██████▎   | 212/338 [00:01<00:00, 195.10it/s]Loading weights:  71%|███████▏  | 241/338 [00:01<00:00, 182.32it/s]Loading weights:  78%|███████▊  | 265/338 [00:01<00:00, 181.13it/s]Loading weights:  85%|████████▍ | 287/338 [00:01<00:00, 171.60it/s]Loading weights:  91%|█████████ | 307/338 [00:01<00:00, 165.71it/s]Loading weights: 100%|██████[✓] Model loaded! (1544M params)
-
-============INFO:     Started server process [10991]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8080): address already in use
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-[✓] Model loaded! (1544M params)
-
-==================================================
-  TRAINING CYCLE 3 — 11:52:49
-==================================================
