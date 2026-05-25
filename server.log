@@ -21,5 +21,9 @@ INFO:     127.0.0.1:58648 - "GET /training/status HTTP/1.1" 200 OK
 INFO:     104.28.166.114:43308 - "POST /chat HTTP/1.1" 200 OK
 INFO:     127.0.0.1:39010 - "POST /v1/chat/completions HTTP/1.1" 200 OK
 INFO:     104.28.166.114:43308 - "GET /training/status HTTP/1.1" 200 OK
-inux-x86_64-gnu/lib/python3.14/multiprocessing/resource_tracker.py:475: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-xrm253l6'}
-  warnings.warn(
+INFO:     104.28.166.114:43432 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     104.28.166.114:42912 - "POST /chat HTTP/1.1" 200 OK
+INFO:     104.28.166.114:43366 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     104.28.166.114:43489 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42890 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     13.89.124.215:37366 - "GET /hudson HTTP/1.1" 404 Not Found
