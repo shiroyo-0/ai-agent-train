@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+"""Unified server: loads Qwen model once, serves chat API + runs training in background."""
+
+import asyncio
+import json
+import subprocess
+import threading
+import time
+from datetime import datetime
+from pathlib import Path
+
+import torch
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+REPO_DIR = Path(__file__).parent.parent
+DATA_DIR = REPO_DIR / "data" / "training"
+LOGS_DIR = REPO_DIR / "data" / "logs"
+MODEL_NAME = "Qwen/Qwen2.5-0.5B-Instruct"
+
+# --- Model (loaded once, shared) ---
+print(f"[*] Loading {MODEL_NAME}...")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, dtype=torch.float32, trust_remote_code=True)
+model.eval()
+print(f"[✓] Model loaded! ({sum(p.numel() for p in model.parameters())/1e6:.0f}M params)")
+
+_lock = threading.Lock()
+
+
+def generate(prompt: str, max_new_tokens: int = 256, temperature: float = 0.7) -> str:
+    with _lock:
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=256)
+        with torch.no_grad():
+            out = model.generate(
+                **inputs, max_new_tokens=max_new_tokens,
+                temperature=temperature, top_p=0.9, do_sample=True,
+                pad_token_id=tokenizer.eos_token_id,
+            )
+        return tokenizer.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+
+
+# --- Chat API ---
+app = FastAPI(title="AI Agent (Local Qwen)", version="0.1.0")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+class ChatRequest(BaseModel):
+    message: str
+    system: str = "You are a helpful AI coding assistant."
+    max_tokens: int = 256
+    temperature: float = 0.7
+
+
+class ChatResponse(BaseModel):
+    response: str
+    model: str = MODEL_NAME
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "model": MODEL_NAME, "training": training_status()}
+
+
+from fastapi.responses import HTMLResponse
+
+@app.get("/", response_class=HTMLResponse)
+def index():
+    return """<!DOCTYPE html><html><head><meta charset="utf-8"><title>AI Agent</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:monospace;background:#1a1a2e;color:#eee;padding:20px;max-width:900px;margin:0 auto}
+h1{color:#0ff;margin-bottom:10px}h2{color:#0f0;margin:15px 0 8px}.box{background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:15px;margin:10px 0}
+#chat{height:400px;overflow-y:auto;margin:10px 0}#chat .msg{margin:8px 0;padding:8px;border-radius:5px}
+.user{background:#0f3460;text-align:right}.bot{background:#1a1a2e;border:1px solid #333}
+input[type=text]{width:80%;padding:10px;background:#0f3460;border:1px solid #0ff;color:#fff;border-radius:5px}
+button{padding:10px 20px;background:#0ff;color:#000;border:none;border-radius:5px;cursor:pointer;font-weight:bold}
+button:hover{background:#0a0}pre{white-space:pre-wrap;font-size:13px}#status{color:#0f0}</style></head>
+<body><h1>🤖 AI Agent (Qwen 0.5B)</h1>
+<div class="box"><h2>💬 Chat</h2><div id="chat"></div>
+<form onsubmit="send(event)"><input type="text" id="msg" placeholder="Ask anything..." autofocus>
+<button type="submit">Send</button></form></div>
+<div class="box"><h2>🎓 Training Progress</h2><div id="status">Loading...</div></div>
+<script>
+async function send(e){e.preventDefault();const m=document.getElementById('msg');const v=m.value;if(!v)return;
+document.getElementById('chat').innerHTML+=`<div class="msg user">${v}</div>`;m.value='';
+const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:v})});
+const d=await r.json();document.getElementById('chat').innerHTML+=`<div class="msg bot"><pre>${d.response}</pre></div>`;
+document.getElementById('chat').scrollTop=9999;}
+async function update(){const r=await fetch('/training/status');const d=await r.json();
+document.getElementById('status').innerHTML=d.cycles?`<b>Cycles completed:</b> ${d.cycles}<br><b>Latest:</b> ${d.latest.examples} examples, avg score ${d.latest.avg_score}/10, ${d.latest.high_quality} high-quality<br><b>Time:</b> ${d.latest.elapsed_seconds}s<br><b>Model:</b> ${d.latest.model}`:'No cycles yet';}
+update();setInterval(update,30000);
+</script></body></html>"""
+
+
+@app.post("/chat", response_model=ChatResponse)
+def chat(req: ChatRequest):
+    prompt = f"<|im_start|>system\n{req.system}<|im_end|>\n<|im_start|>user\n{req.message}<|im_end|>\n<|im_start|>assistant\n"
+    response = generate(prompt, max_new_tokens=req.max_tokens, temperature=req.temperature)
+    return ChatResponse(response=response)
+
+
+# OpenAI-compatible endpoint (for CLI via litellm)
+class OAIMessage(BaseModel):
+    role: str
+    content: str
+
+class OAIRequest(BaseModel):
+    model: str = MODEL_NAME
+    messages: list[OAIMessage] = []
+    temperature: float = 0.7
+    max_tokens: int = 256
+
+@app.post("/v1/chat/completions")
+def oai_chat(req: OAIRequest):
+    system = "You are a helpful AI coding assistant."
+    user_msg = ""
+    for m in req.messages:
+        if m.role == "system": system = m.content
+        elif m.role == "user": user_msg = m.content
+    prompt = f"<|im_start|>system\n{system}<|im_end|>\n<|im_start|>user\n{user_msg}<|im_end|>\n<|im_start|>assistant\n"
+    resp = generate(prompt, max_new_tokens=req.max_tokens, temperature=req.temperature)
+    return {"id": "local-1", "object": "chat.completion", "model": MODEL_NAME,
+            "choices": [{"index": 0, "message": {"role": "assistant", "content": resp}, "finish_reason": "stop"}],
+            "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}}
+
+@app.get("/v1/models")
+def oai_models():
+    return {"data": [{"id": MODEL_NAME, "object": "model", "owned_by": "local"}]}
+
+
+@app.get("/training/status")
+def training_status():
+    logs = sorted(LOGS_DIR.glob("cycle_*.json")) if LOGS_DIR.exists() else []
+    if not logs:
+        return {"cycles": 0}
+    latest = json.loads(logs[-1].read_text())
+    return {"cycles": len(logs), "latest": latest}
+
+
+# --- Training Loop (background thread) ---
+TASKS = [
+    "Write a Python function to reverse a linked list",
+    "Write a Python async function that fetches multiple URLs concurrently",
+    "Write a Python class implementing the Observer pattern",
+    "Write a Python function to validate an email address using regex",
+    "Write a Python decorator that caches function results with TTL",
+    "Write a Python function to merge two sorted arrays in O(n) time",
+    "Write a Python context manager for database transactions",
+    "Write a Python function to parse and evaluate a simple math expression",
+    "Write a Python rate limiter using the token bucket algorithm",
+    "Write a Python function to find all permutations of a string",
+    "Write a Python function to detect cycles in a directed graph",
+    "Write a Python function to implement LRU cache from scratch",
+    "Write a Python function to implement exponential backoff with jitter",
+    "Write a Python generator that reads a large file in chunks",
+    "Write a Python function to diff two dictionaries recursively",
+]
+
+
+def git_push(cycle: int):
+    try:
+        subprocess.run(["git", "add", "-A"], cwd=REPO_DIR, capture_output=True)
+        diff = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=REPO_DIR, capture_output=True)
+        if diff.returncode != 0:
+            msg = f"🎓 Cycle {cycle} [{datetime.now().strftime('%Y%m%d_%H%M')}]"
+            subprocess.run(["git", "commit", "-m", msg], cwd=REPO_DIR, capture_output=True)
+            r = subprocess.run(["git", "push"], cwd=REPO_DIR, capture_output=True, text=True)
+            print(f"  📤 {'Pushed' if r.returncode == 0 else 'Push failed: ' + r.stderr.strip()}")
+    except Exception as e:
+        print(f"  ⚠ Git: {e}")
+
+
+def training_loop():
+    """Background training - generates data, self-evals, pushes to GitHub."""
+    cycle = len(list(LOGS_DIR.glob("cycle_*.json"))) + 1 if LOGS_DIR.exists() else 1
+    while True:
+        print(f"\n{'='*50}")
+        print(f"  TRAINING CYCLE {cycle} — {datetime.now().strftime('%H:%M:%S')}")
+        print(f"{'='*50}")
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        cycle_dir = DATA_DIR / f"cycle_{cycle:04d}"
+        cycle_dir.mkdir(parents=True, exist_ok=True)
+
+        start = time.time()
+        examples = []
+        for task in TASKS:
+            prompt = f"<|im_start|>system\nYou are an expert Python programmer.<|im_end|>\n<|im_start|>user\n{task}<|im_end|>\n<|im_start|>assistant\n"
+            resp = generate(prompt)
+            examples.append({"instruction": task, "output": resp.strip(), "model": MODEL_NAME, "timestamp": timestamp, "cycle": cycle})
+
+        elapsed = time.time() - start
+        print(f"  ✓ Generated {len(examples)} in {elapsed:.0f}s")
+
+        # Save
+        with (cycle_dir / "generated.jsonl").open("w") as f:
+            for ex in examples:
+                f.write(json.dumps(ex) + "\n")
+
+        # Self-eval
+        scores = []
+        for ex in examples:
+            ep = f"<|im_start|>system\nRate 1-10. Just the number.<|im_end|>\n<|im_start|>user\n{ex['instruction']}\n{ex['output'][:200]}<|im_end|>\n<|im_start|>assistant\n"
+            s = generate(ep, max_new_tokens=5, temperature=0.1)
+            try:
+                scores.append(min(max(int("".join(c for c in s if c.isdigit())[:2]), 1), 10))
+            except:
+                scores.append(5)
+
+        avg = sum(scores) / len(scores)
+        hq = [ex for ex, s in zip(examples, scores) if s >= 7]
+        if hq:
+            with (cycle_dir / "high_quality.jsonl").open("w") as f:
+                for ex in hq:
+                    f.write(json.dumps(ex) + "\n")
+
+        log = {"cycle": cycle, "timestamp": timestamp, "model": MODEL_NAME,
+               "examples": len(examples), "high_quality": len(hq), "avg_score": round(avg, 2), "elapsed_seconds": round(elapsed, 1)}
+        LOGS_DIR.mkdir(parents=True, exist_ok=True)
+        (LOGS_DIR / f"cycle_{cycle:04d}.json").write_text(json.dumps(log, indent=2))
+        print(f"  ✓ Score: {avg:.1f}/10 | HQ: {len(hq)}/{len(examples)}")
+
+        # Push to GitHub
+        git_push(cycle)
+        cycle += 1
+
+        # Wait 2 min before next cycle
+        time.sleep(120)
+
+
+# Start training in background thread
+threading.Thread(target=training_loop, daemon=True).start()
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)

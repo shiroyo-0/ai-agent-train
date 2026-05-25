@@ -1,0 +1,202 @@
+(APIServer pid=8410) INFO 05-25 10:54:26 [utils.py:306] 
+(APIServer pid=8410) INFO 05-25 10:54:26 [utils.py:306]        █     █     █▄   ▄█
+(APIServer pid=8410) INFO 05-25 10:54:26 [utils.py:306]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.21.0
+(APIServer pid=8410) INFO 05-25 10:54:26 [utils.py:306]   █▄█▀ █     █     █     █  model   Qwen/Qwen2.5-0.5B-Instruct
+(APIServer pid=8410) INFO 05-25 10:54:26 [utils.py:306]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+(APIServer pid=8410) INFO 05-25 10:54:26 [utils.py:306] 
+(APIServer pid=8410) INFO 05-25 10:54:26 [utils.py:240] non-default args: {'host': '0.0.0.0', 'model': 'Qwen/Qwen2.5-0.5B-Instruct', 'dtype': 'float32', 'max_model_len': 512, 'gpu_memory_utilization': 0.4}
+(APIServer pid=8410) Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+(APIServer pid=8410) INFO 05-25 10:54:28 [model.py:568] Resolved architecture: Qwen2ForCausalLM
+(APIServer pid=8410) INFO 05-25 10:54:28 [model.py:2029] Upcasting torch.bfloat16 to torch.float32.
+(APIServer pid=8410) INFO 05-25 10:54:28 [model.py:1697] Using max model len 512
+(APIServer pid=8410) INFO 05-25 10:54:28 [vllm.py:886] Asynchronous scheduling is enabled.
+(APIServer pid=8410) INFO 05-25 10:54:28 [kernel.py:212] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(APIServer pid=8410) INFO 05-25 10:54:28 [importing.py:45] Triton is installed but 0 active driver(s) found (expected 1). Disabling Triton to prevent runtime errors.
+(APIServer pid=8410) INFO 05-25 10:54:28 [importing.py:69] Triton not installed or not compatible; certain GPU-related functions will not be available.
+(APIServer pid=8410) Traceback (most recent call last):
+(APIServer pid=8410)   File [35m"<frozen runpy>"[0m, line [35m203[0m, in [35m_run_module_as_main[0m
+(APIServer pid=8410)   File [35m"<frozen runpy>"[0m, line [35m88[0m, in [35m_run_code[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/entrypoints/openai/api_server.py"[0m, line [35m733[0m, in [35m<module>[0m
+(APIServer pid=8410)     [31muvloop.run[0m[1;31m(run_server(args))[0m
+(APIServer pid=8410)     [31m~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/uvloop/__init__.py"[0m, line [35m96[0m, in [35mrun[0m
+(APIServer pid=8410)     return [31m__asyncio.run[0m[1;31m([0m
+(APIServer pid=8410)            [31m~~~~~~~~~~~~~[0m[1;31m^[0m
+(APIServer pid=8410)         [1;31mwrapper(),[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^[0m
+(APIServer pid=8410)     ...<2 lines>...
+(APIServer pid=8410)         [1;31m**run_kwargs[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^[0m
+(APIServer pid=8410)     [1;31m)[0m
+(APIServer pid=8410)     [1;31m^[0m
+(APIServer pid=8410)   File [35m"/root/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py"[0m, line [35m204[0m, in [35mrun[0m
+(APIServer pid=8410)     return [31mrunner.run[0m[1;31m(main)[0m
+(APIServer pid=8410)            [31m~~~~~~~~~~[0m[1;31m^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py"[0m, line [35m127[0m, in [35mrun[0m
+(APIServer pid=8410)     return [31mself._loop.run_until_complete[0m[1;31m(task)[0m
+(APIServer pid=8410)            [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^[0m
+(APIServer pid=8410)   File [35m"uvloop/loop.pyx"[0m, line [35m1512[0m, in [35muvloop.loop.Loop.run_until_complete[0m
+(APIServer pid=8410)   File [35m"uvloop/loop.pyx"[0m, line [35m1505[0m, in [35muvloop.loop.Loop.run_until_complete[0m
+(APIServer pid=8410)     self.run_forever()
+(APIServer pid=8410)   File [35m"uvloop/loop.pyx"[0m, line [35m1379[0m, in [35muvloop.loop.Loop.run_forever[0m
+(APIServer pid=8410)     self._run(mode)
+(APIServer pid=8410)   File [35m"uvloop/loop.pyx"[0m, line [35m557[0m, in [35muvloop.loop.Loop._run[0m
+(APIServer pid=8410)     raise self._last_error
+(APIServer pid=8410)   File [35m"uvloop/loop.pyx"[0m, line [35m476[0m, in [35muvloop.loop.Loop._on_idle[0m
+(APIServer pid=8410)     handler._run()
+(APIServer pid=8410)   File [35m"uvloop/cbhandles.pyx"[0m, line [35m83[0m, in [35muvloop.loop.Handle._run[0m
+(APIServer pid=8410)   File [35m"uvloop/cbhandles.pyx"[0m, line [35m61[0m, in [35muvloop.loop.Handle._run[0m
+(APIServer pid=8410)     callback()
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/uvloop/__init__.py"[0m, line [35m48[0m, in [35mwrapper[0m
+(APIServer pid=8410)     return [1;31mawait main[0m
+(APIServer pid=8410)            [1;31m^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/entrypoints/openai/api_server.py"[0m, line [35m693[0m, in [35mrun_server[0m
+(APIServer pid=8410)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/entrypoints/openai/api_server.py"[0m, line [35m707[0m, in [35mrun_server_worker[0m
+(APIServer pid=8410)     async with [31mbuild_async_engine_client[0m[1;31m([0m
+(APIServer pid=8410)                [31m~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^[0m
+(APIServer pid=8410)         [1;31margs,[0m
+(APIServer pid=8410)         [1;31m^^^^^[0m
+(APIServer pid=8410)         [1;31mclient_config=client_config,[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)     [1;31m)[0m as engine_client:
+(APIServer pid=8410)     [1;31m^[0m
+(APIServer pid=8410)   File [35m"/root/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/contextlib.py"[0m, line [35m214[0m, in [35m__aenter__[0m
+(APIServer pid=8410)     return [1;31mawait anext(self.gen)[0m
+(APIServer pid=8410)            [1;31m^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/entrypoints/openai/api_server.py"[0m, line [35m100[0m, in [35mbuild_async_engine_client[0m
+(APIServer pid=8410)     async with [31mbuild_async_engine_client_from_engine_args[0m[1;31m([0m
+(APIServer pid=8410)                [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^[0m
+(APIServer pid=8410)         [1;31mengine_args,[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^[0m
+(APIServer pid=8410)         [1;31musage_context=usage_context,[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)         [1;31mclient_config=client_config,[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)     [1;31m)[0m as engine:
+(APIServer pid=8410)     [1;31m^[0m
+(APIServer pid=8410)   File [35m"/root/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/contextlib.py"[0m, line [35m214[0m, in [35m__aenter__[0m
+(APIServer pid=8410)     return [1;31mawait anext(self.gen)[0m
+(APIServer pid=8410)            [1;31m^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/entrypoints/openai/api_server.py"[0m, line [35m136[0m, in [35mbuild_async_engine_client_from_engine_args[0m
+(APIServer pid=8410)     async_llm = AsyncLLM.from_vllm_config(
+(APIServer pid=8410)         vllm_config=vllm_config,
+(APIServer pid=8410)     ...<6 lines>...
+(APIServer pid=8410)         client_index=client_index,
+(APIServer pid=8410)     )
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/v1/engine/async_llm.py"[0m, line [35m217[0m, in [35mfrom_vllm_config[0m
+(APIServer pid=8410)     return cls(
+(APIServer pid=8410)         vllm_config=vllm_config,
+(APIServer pid=8410)     ...<9 lines>...
+(APIServer pid=8410)         client_index=client_index,
+(APIServer pid=8410)     )
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/v1/engine/async_llm.py"[0m, line [35m132[0m, in [35m__init__[0m
+(APIServer pid=8410)     self.renderer = renderer = [31mrenderer_from_config[0m[1;31m(self.vllm_config)[0m
+(APIServer pid=8410)                                [31m~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/renderers/registry.py"[0m, line [35m85[0m, in [35mrenderer_from_config[0m
+(APIServer pid=8410)     tokenizer = cached_tokenizer_from_config(model_config, **kwargs)
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/tokenizers/registry.py"[0m, line [35m262[0m, in [35mcached_tokenizer_from_config[0m
+(APIServer pid=8410)     return cached_get_tokenizer(
+(APIServer pid=8410)         model_config.tokenizer,
+(APIServer pid=8410)     ...<4 lines>...
+(APIServer pid=8410)         **kwargs,
+(APIServer pid=8410)     )
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/tokenizers/registry.py"[0m, line [35m245[0m, in [35mget_tokenizer[0m
+(APIServer pid=8410)     tokenizer = tokenizer_cls_.from_pretrained(tokenizer_name, *args, **kwargs)
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/tokenizers/hf.py"[0m, line [35m172[0m, in [35mfrom_pretrained[0m
+(APIServer pid=8410)     tokenizer = AutoTokenizer.from_pretrained(
+(APIServer pid=8410)         path_or_repo_id,
+(APIServer pid=8410)     ...<4 lines>...
+(APIServer pid=8410)         **kwargs,
+(APIServer pid=8410)     )
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/transformers/models/auto/tokenization_auto.py"[0m, line [35m815[0m, in [35mfrom_pretrained[0m
+(APIServer pid=8410)     return [31mtokenizer_class.from_pretrained[0m[1;31m(pretrained_model_name_or_path, *inputs, **kwargs)[0m
+(APIServer pid=8410)            [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/transformers/tokenization_utils_base.py"[0m, line [35m1672[0m, in [35mfrom_pretrained[0m
+(APIServer pid=8410)     for template in [31mlist_repo_templates[0m[1;31m([0m
+(APIServer pid=8410)                     [31m~~~~~~~~~~~~~~~~~~~[0m[1;31m^[0m
+(APIServer pid=8410)         [1;31mpretrained_model_name_or_path,[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)     ...<3 lines>...
+(APIServer pid=8410)         [1;31mtoken=token,[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^[0m
+(APIServer pid=8410)     [1;31m)[0m:
+(APIServer pid=8410)     [1;31m^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/transformers/utils/hub.py"[0m, line [35m134[0m, in [35mlist_repo_templates[0m
+(APIServer pid=8410)     for entry in [31mlist_repo_tree[0m[1;31m([0m
+(APIServer pid=8410)                  [31m~~~~~~~~~~~~~~[0m[1;31m^[0m
+(APIServer pid=8410)         [1;31mrepo_id=repo_id,[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)     ...<3 lines>...
+(APIServer pid=8410)         [1;31mtoken=token,[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^[0m
+(APIServer pid=8410)     [1;31m)[0m
+(APIServer pid=8410)     [1;31m^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/huggingface_hub/hf_api.py"[0m, line [35m3830[0m, in [35mlist_repo_tree[0m
+(APIServer pid=8410)     for path_info in [31mpaginate[0m[1;31m(path=tree_url, headers=headers, params={"recursive": recursive, "expand": expand})[0m:
+(APIServer pid=8410)                      [31m~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/huggingface_hub/utils/_pagination.py"[0m, line [35m35[0m, in [35mpaginate[0m
+(APIServer pid=8410)     r = session.get(path, params=params, headers=headers)
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpx/_client.py"[0m, line [35m1053[0m, in [35mget[0m
+(APIServer pid=8410)     return [31mself.request[0m[1;31m([0m
+(APIServer pid=8410)            [31m~~~~~~~~~~~~[0m[1;31m^[0m
+(APIServer pid=8410)         [1;31m"GET",[0m
+(APIServer pid=8410)         [1;31m^^^^^^[0m
+(APIServer pid=8410)     ...<7 lines>...
+(APIServer pid=8410)         [1;31mextensions=extensions,[0m
+(APIServer pid=8410)         [1;31m^^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)     [1;31m)[0m
+(APIServer pid=8410)     [1;31m^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpx/_client.py"[0m, line [35m825[0m, in [35mrequest[0m
+(APIServer pid=8410)     return [31mself.send[0m[1;31m(request, auth=auth, follow_redirects=follow_redirects)[0m
+(APIServer pid=8410)            [31m~~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpx/_client.py"[0m, line [35m914[0m, in [35msend[0m
+(APIServer pid=8410)     response = self._send_handling_auth(
+(APIServer pid=8410)         request,
+(APIServer pid=8410)     ...<2 lines>...
+(APIServer pid=8410)         history=[],
+(APIServer pid=8410)     )
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpx/_client.py"[0m, line [35m942[0m, in [35m_send_handling_auth[0m
+(APIServer pid=8410)     response = self._send_handling_redirects(
+(APIServer pid=8410)         request,
+(APIServer pid=8410)         follow_redirects=follow_redirects,
+(APIServer pid=8410)         history=history,
+(APIServer pid=8410)     )
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpx/_client.py"[0m, line [35m979[0m, in [35m_send_handling_redirects[0m
+(APIServer pid=8410)     response = self._send_single_request(request)
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpx/_client.py"[0m, line [35m1014[0m, in [35m_send_single_request[0m
+(APIServer pid=8410)     response = transport.handle_request(request)
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpx/_transports/default.py"[0m, line [35m250[0m, in [35mhandle_request[0m
+(APIServer pid=8410)     resp = self._pool.handle_request(req)
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpcore/_sync/connection_pool.py"[0m, line [35m256[0m, in [35mhandle_request[0m
+(APIServer pid=8410)     raise exc from None
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpcore/_sync/connection_pool.py"[0m, line [35m236[0m, in [35mhandle_request[0m
+(APIServer pid=8410)     response = connection.handle_request(
+(APIServer pid=8410)         pool_request.request
+(APIServer pid=8410)     )
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpcore/_sync/connection.py"[0m, line [35m103[0m, in [35mhandle_request[0m
+(APIServer pid=8410)     return [31mself._connection.handle_request[0m[1;31m(request)[0m
+(APIServer pid=8410)            [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpcore/_sync/http11.py"[0m, line [35m136[0m, in [35mhandle_request[0m
+(APIServer pid=8410)     raise exc
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpcore/_sync/http11.py"[0m, line [35m106[0m, in [35mhandle_request[0m
+(APIServer pid=8410)     ) = [31mself._receive_response_headers[0m[1;31m(**kwargs)[0m
+(APIServer pid=8410)         [31m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpcore/_sync/http11.py"[0m, line [35m177[0m, in [35m_receive_response_headers[0m
+(APIServer pid=8410)     event = self._receive_event(timeout=timeout)
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpcore/_sync/http11.py"[0m, line [35m217[0m, in [35m_receive_event[0m
+(APIServer pid=8410)     data = self._network_stream.read(
+(APIServer pid=8410)         self.READ_NUM_BYTES, timeout=timeout
+(APIServer pid=8410)     )
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/httpcore/_backends/sync.py"[0m, line [35m128[0m, in [35mread[0m
+(APIServer pid=8410)     return [31mself._sock.recv[0m[1;31m(max_bytes)[0m
+(APIServer pid=8410)            [31m~~~~~~~~~~~~~~~[0m[1;31m^^^^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/ssl.py"[0m, line [35m1297[0m, in [35mrecv[0m
+(APIServer pid=8410)     return [31mself.read[0m[1;31m(buflen)[0m
+(APIServer pid=8410)            [31m~~~~~~~~~[0m[1;31m^^^^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/ssl.py"[0m, line [35m1152[0m, in [35mread[0m
+(APIServer pid=8410)     return [31mself._sslobj.read[0m[1;31m(len)[0m
+(APIServer pid=8410)            [31m~~~~~~~~~~~~~~~~~[0m[1;31m^^^^^[0m
+(APIServer pid=8410)   File [35m"/root/ai-agent/.venv/lib/python3.14/site-packages/vllm/entrypoints/openai/api_server.py"[0m, line [35m579[0m, in [35msignal_handler[0m
+(APIServer pid=8410)     raise KeyboardInterrupt("terminated")
+(APIServer pid=8410) [1;35mKeyboardInterrupt[0m: [35mterminated[0m
