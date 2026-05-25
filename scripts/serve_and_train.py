@@ -155,7 +155,19 @@ def chat(req: ChatRequest):
     if len(history) > 50:
         _conversations[req.session_id] = history[-50:]
 
+    # Save conversation as training data (learn from usage)
+    _save_chat_training(req.message, response)
+
     return ChatResponse(response=response, session_id=req.session_id)
+
+
+def _save_chat_training(user_msg: str, assistant_msg: str):
+    """Save every chat interaction as training data."""
+    chat_dir = DATA_DIR / "chat_logs"
+    chat_dir.mkdir(parents=True, exist_ok=True)
+    entry = {"instruction": user_msg, "output": assistant_msg, "source": "user_chat", "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S")}
+    with (chat_dir / "conversations.jsonl").open("a") as f:
+        f.write(json.dumps(entry) + "\n")
 
 
 # OpenAI-compatible endpoint (for CLI via litellm)

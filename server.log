@@ -1,43 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-[*] Loading Qwen/Qwen2.5-1.5B-Instruct...
-Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   0%|          | 1/338 [00:00<02:56,  1.91it/s]Loading weights:  47%|████▋     | 159/338 [00:00<00:00, 319.18it/s]Loading weights:  68%|██████▊   | 231/338 [00:00<00:00, 325.29it/s]Loading weights:  84%|████████▍ | 285/338 [00:01<00:00, 311.86it/s]Loading weights:  97%|█████████▋| 329/338 [00:01<00:00, 317.87it/s]Loading weights: 100%|██████████| 338/338 [00:01<00:00, 283.93it/s]
-INFO:     Started server process [11330]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
-[✓] Model loaded! (1544M params)
-
-==================================================
-  TRAINING CYCLE 3 — 12:03:26
-==================================================
-INFO:     104.28.166.114:44226 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:44219 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:44228 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43323 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:44736 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:42537 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43372 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43223 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43255 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43747 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43255 - "POST /chat HTTP/1.1" 200 OK
-INFO:     104.28.166.114:45023 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:44909 - "GET /training/status HTTP/1.1" 200 OK
-  ✓ Generated 15 in 346s (cloud)
-INFO:     104.28.166.114:42956 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43372 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:44986 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:44247 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43473 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:44695 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56218 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:44884 - "POST /chat HTTP/1.1" 200 OK
-INFO:     127.0.0.1:34176 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43381 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:42777 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     104.28.166.114:45038 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58108 - "POST /chat HTTP/1.1" 200 OK
-INFO:     104.28.166.114:42799 - "GET /training/status HTTP/1.1" 200 OK
-INFO:     103.59.156.16:35224 - "GET / HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43667 - "GET / HTTP/1.1" 200 OK
-INFO:     104.28.166.114:43667 - "GET /training/status HTTP/1.1" 200 OK
