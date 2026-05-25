@@ -53,7 +53,9 @@ def generate_local(prompt: str, max_new_tokens: int = 256, temperature: float = 
 def generate_cloud(messages: list[dict], temperature: float = 0.7) -> str:
     """DO GenAI 397B model - for complex/long responses."""
     try:
-        r = httpx.post(DO_API_URL, json={"messages": messages, "model": "default", "temperature": temperature},
+        # DO agent doesn't allow system messages
+        filtered = [m for m in messages if m["role"] != "system"]
+        r = httpx.post(DO_API_URL, json={"messages": filtered, "model": "default", "temperature": temperature},
                        headers={"Authorization": f"Bearer {DO_API_KEY}", "Content-Type": "application/json"}, timeout=60)
         data = r.json()
         return data["choices"][0]["message"]["content"]
@@ -137,7 +139,7 @@ def chat(req: ChatRequest):
 
     if use_cloud:
         # Use DO GenAI 397B
-        messages = [{"role": "system", "content": req.system}]
+        messages = []
         for msg in history[-20:]:
             messages.append({"role": msg["role"], "content": msg["content"]})
         response = generate_cloud(messages, temperature=req.temperature)

@@ -1,0 +1,27 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[*] Loading Qwen/Qwen2.5-1.5B-Instruct...
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   0%|          | 1/338 [00:00<05:02,  1.12it/s]Loading weights:  47%|████▋     | 160/338 [00:01<00:00, 213.91it/s]Loading weights:  71%|███████   | 239/338 [00:01<00:00, 197.88it/s]Loading weights:  86%|████████▌ | 290/338 [00:01<00:00, 195.53it/s]Loading weights:  97%|█████████▋| 329/338 [00:01<00:00, 182.30it/s]Loading weights: 100%|██████████| 338/338 [00:01<00:00, 169.73it/s]
+INFO:     Started server process [11195]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+[✓] Model loaded! (1544M params)
+
+==================================================
+  TRAINING CYCLE 3 — 11:59:36
+==================================================
+INFO:     104.28.166.114:43833 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43012 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60534 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     104.28.166.114:43835 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43036 - "POST /chat HTTP/1.1" 200 OK
+INFO:     104.28.166.114:42635 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     104.28.166.114:43632 - "GET / HTTP/1.1" 200 OK
+INFO:     104.28.166.114:43632 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     104.28.166.114:42696 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     104.28.166.114:43033 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     104.28.166.114:43543 - "GET /training/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36900 - "POST /chat HTTP/1.1" 200 OK
+ess [11122]
+/root/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/multiprocessing/resource_tracker.py:475: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-a5rt96zl'}
+  warnings.warn(
