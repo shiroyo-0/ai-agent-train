@@ -6,7 +6,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 API = "http://localhost:8080"
-BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"  # Get from @BotFather
+BOT_TOKEN = "8550160135:AAGVV0LcNAEiMbzxytCeRJTQktECHalJgkk"
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
