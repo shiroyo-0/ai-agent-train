@@ -246,6 +246,144 @@ def logs(
         console.print(line)
 
 
+@app.command()
+def rag(
+    action: str = typer.Argument("status", help="Action: ingest, query, status, clear"),
+    path: Optional[str] = typer.Option(None, "--path", "-p", help="File/directory to ingest"),
+    query: Optional[str] = typer.Option(None, "--query", "-q", help="Query to search"),
+):
+    """📚 RAG knowledge base management."""
+    from ai_agent.rag import RAGPipeline
+    pipeline = RAGPipeline()
+
+    if action == "ingest" and path:
+        p = Path(path)
+        with console.status(f"[bold]Ingesting {p}..."):
+            if p.is_dir():
+                count = pipeline.ingest_directory(p)
+            else:
+                count = pipeline.ingest_file(p)
+        console.print(f"[success]✓ Ingested {count} chunks from {p}[/success]")
+    elif action == "query" and query:
+        results = pipeline.query(query)
+        if results:
+            for i, r in enumerate(results, 1):
+                source = Path(r["source"]).name if r["source"] else "?"
+                console.print(f"\n[cyan][{i}][/cyan] ({source}) score={r.get('score', 0):.2f}")
+                console.print(f"  {r['content'][:200]}")
+        else:
+            console.print("[warning]No results found.[/warning]")
+    elif action == "clear":
+        if typer.confirm("Clear RAG knowledge base?"):
+            pipeline.clear()
+            console.print("[success]RAG cleared.[/success]")
+    else:
+        stats = pipeline.stats
+        console.print(f"[info]📚 RAG: {stats['documents']} chunks from {stats['sources']} sources[/info]")
+
+
+@app.command()
+def plugins(
+    action: str = typer.Argument("list", help="Action: list, load, unload"),
+    name: Optional[str] = typer.Option(None, "--name", "-n", help="Plugin name"),
+):
+    """🔌 Plugin management."""
+    from ai_agent.plugins import PluginRegistry
+    registry = PluginRegistry()
+
+    if action == "list":
+        available = registry.list_available()
+        loaded = registry.list_loaded()
+        if available:
+            table = Table(title="🔌 Plugins")
+            table.add_column("Name", style="cyan")
+            table.add_column("Version")
+            table.add_column("Status")
+            table.add_column("Description")
+            for p in available:
+                status = "[green]loaded[/green]" if p.name in loaded else "[dim]available[/dim]"
+                table.add_row(p.name, p.version, status, p.description)
+            console.print(table)
+        else:
+            console.print("[dim]No plugins found. Add plugins to ~/.ai-agent/plugins/[/dim]")
+    elif action == "load" and name:
+        _run_async(registry.load(name))
+        console.print(f"[success]Plugin '{name}' loaded.[/success]")
+    elif action == "unload" and name:
+        _run_async(registry.unload(name))
+        console.print(f"[success]Plugin '{name}' unloaded.[/success]")
+
+
+@app.command()
+def workflow(
+    action: str = typer.Argument("list", help="Action: run, list, create"),
+    path: Optional[str] = typer.Option(None, "--file", "-f", help="Workflow definition file"),
+    name: Optional[str] = typer.Option(None, "--name", "-n", help="Workflow name"),
+):
+    """⚡ Workflow automation."""
+    from ai_agent.workflows import WorkflowEngine
+    engine = WorkflowEngine()
+
+    if action == "list":
+        workflows = engine.list_workflows()
+        if workflows:
+            table = Table(title="⚡ Workflows")
+            table.add_column("ID", style="cyan")
+            table.add_column("Name")
+            table.add_column("Status")
+            for w in workflows:
+                table.add_row(w["id"], w["name"], w["status"])
+            console.print(table)
+        else:
+            console.print("[dim]No workflows yet.[/dim]")
+    elif action == "run" and path:
+        wf = engine.load_workflow(path)
+        console.print(f"[info]Running workflow: {wf.name}[/info]")
+        result = _run_async(engine.execute(wf))
+        status = "[green]✓[/green]" if result.status.value == "completed" else "[red]✗[/red]"
+        console.print(f"{status} Workflow {result.status.value} ({len(result.nodes)} steps)")
+
+
+@app.command(name="shell")
+def agent_shell(
+    command: Optional[str] = typer.Argument(None, help="Command to run with AI assistance"),
+):
+    """🐚 AI-powered shell (agent interprets and executes)."""
+    if command:
+        from ai_agent.cli.runner import run_task
+        _run_async(run_task(f"Execute this shell task: {command}", plan_first=False))
+    else:
+        console.print("[info]🐚 AI Shell - type commands, agent will help execute[/info]")
+        console.print("[dim]Type 'exit' to quit[/dim]\n")
+        while True:
+            try:
+                cmd = input("ai-shell❯ ").strip()
+            except (EOFError, KeyboardInterrupt):
+                break
+            if cmd in ("exit", "quit"):
+                break
+            if not cmd:
+                continue
+            from ai_agent.cli.runner import run_task
+            _run_async(run_task(f"Execute: {cmd}", plan_first=False))
+
+
+@app.command()
+def sandbox(
+    command: str = typer.Argument(..., help="Command to run in sandbox"),
+    image: str = typer.Option("python:3.12-slim", "--image", "-i", help="Docker image"),
+):
+    """📦 Run command in isolated Docker sandbox."""
+    import asyncio
+    from ai_agent.tools.sandbox import DockerSandboxTool
+    tool = DockerSandboxTool()
+    result = _run_async(tool.execute(command=command, image=image))
+    if result.success:
+        console.print(result.output)
+    else:
+        console.print(f"[error]{result.output}[/error]")
+
+
 @app.callback()
 def main_callback():
     """🤖 AI Coding Agent - Intelligent development companion."""
