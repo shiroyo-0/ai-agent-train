@@ -28,11 +28,12 @@ model.eval()
 print(f"[✓] Model loaded! ({sum(p.numel() for p in model.parameters())/1e6:.0f}M params)")
 
 _lock = threading.Lock()
+_conversations: dict[str, list[dict]] = {}  # session_id -> messages
 
 
 def generate(prompt: str, max_new_tokens: int = 256, temperature: float = 0.7) -> str:
     with _lock:
-        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=256)
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
         with torch.no_grad():
             out = model.generate(
                 **inputs, max_new_tokens=max_new_tokens,
@@ -49,7 +50,8 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 class ChatRequest(BaseModel):
     message: str
-    system: str = "You are a helpful AI coding assistant."
+    session_id: str = "default"
+    system: str = "You are a helpful AI coding assistant. Remember what the user tells you."
     max_tokens: int = 256
     temperature: float = 0.7
 
@@ -57,6 +59,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     model: str = MODEL_NAME
+    session_id: str = "default"
 
 
 @app.get("/health")
@@ -82,9 +85,10 @@ button:hover{background:#0a0}pre{white-space:pre-wrap;font-size:13px}#status{col
 <button type="submit">Send</button></form></div>
 <div class="box"><h2>🎓 Training Progress</h2><div id="status">Loading...</div></div>
 <script>
+const sid=Math.random().toString(36).slice(2);
 async function send(e){e.preventDefault();const m=document.getElementById('msg');const v=m.value;if(!v)return;
 document.getElementById('chat').innerHTML+=`<div class="msg user">${v}</div>`;m.value='';
-const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:v})});
+const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:v,session_id:sid})});
 const d=await r.json();document.getElementById('chat').innerHTML+=`<div class="msg bot"><pre>${d.response}</pre></div>`;
 document.getElementById('chat').scrollTop=9999;}
 async function update(){const r=await fetch('/training/status');const d=await r.json();
@@ -95,9 +99,30 @@ update();setInterval(update,30000);
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
-    prompt = f"<|im_start|>system\n{req.system}<|im_end|>\n<|im_start|>user\n{req.message}<|im_end|>\n<|im_start|>assistant\n"
+    # Build conversation history
+    if req.session_id not in _conversations:
+        _conversations[req.session_id] = []
+
+    history = _conversations[req.session_id]
+    history.append({"role": "user", "content": req.message})
+
+    # Build prompt with history (keep last 10 turns to fit context)
+    prompt = f"<|im_start|>system\n{req.system}<|im_end|>\n"
+    for msg in history[-10:]:
+        role = msg["role"]
+        prompt += f"<|im_start|>{role}\n{msg['content']}<|im_end|>\n"
+    prompt += "<|im_start|>assistant\n"
+
     response = generate(prompt, max_new_tokens=req.max_tokens, temperature=req.temperature)
-    return ChatResponse(response=response)
+
+    # Save assistant response to history
+    history.append({"role": "assistant", "content": response})
+
+    # Keep history bounded
+    if len(history) > 20:
+        _conversations[req.session_id] = history[-20:]
+
+    return ChatResponse(response=response, session_id=req.session_id)
 
 
 # OpenAI-compatible endpoint (for CLI via litellm)

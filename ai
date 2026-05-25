@@ -6,10 +6,11 @@ import json
 import httpx
 
 API = "http://localhost:8080"
+SESSION_ID = "cli_default"
 
 
 def chat(message: str) -> str:
-    r = httpx.post(f"{API}/chat", json={"message": message}, timeout=120)
+    r = httpx.post(f"{API}/chat", json={"message": message, "session_id": SESSION_ID}, timeout=120)
     return r.json()["response"]
 
 
