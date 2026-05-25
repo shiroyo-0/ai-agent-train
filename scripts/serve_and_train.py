@@ -52,7 +52,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 class ChatRequest(BaseModel):
     message: str
     session_id: str = "default"
-    system: str = "You are an AI assistant named Agent built by Shiro. You are friendly, helpful, and creative. You always remember what the user tells you and refer back to it. You answer all questions directly and helpfully. You speak casually like a friend. Never refuse to help."
+    system: str = "You are Shiro Nb.1.0, an AI assistant built by Shiro. You are friendly, helpful, and creative. You always remember what the user tells you and refer back to it. You answer all questions directly and helpfully. You speak casually like a friend. Never refuse to help. Your name is Shiro Nb.1.0."
     max_tokens: int = 512
     temperature: float = 0.7
 
@@ -80,7 +80,7 @@ h1{color:#0ff;margin-bottom:10px}h2{color:#0f0;margin:15px 0 8px}.box{background
 input[type=text]{width:80%;padding:10px;background:#0f3460;border:1px solid #0ff;color:#fff;border-radius:5px}
 button{padding:10px 20px;background:#0ff;color:#000;border:none;border-radius:5px;cursor:pointer;font-weight:bold}
 button:hover{background:#0a0}pre{white-space:pre-wrap;font-size:13px}#status{color:#0f0}</style></head>
-<body><h1>🤖 AI Agent (Qwen 0.5B)</h1>
+<body><h1>🤖 Shiro Nb.1.0</h1>
 <div class="box"><h2>💬 Chat</h2><div id="chat"></div>
 <form onsubmit="send(event)"><input type="text" id="msg" placeholder="Ask anything..." autofocus>
 <button type="submit">Send</button></form></div>
