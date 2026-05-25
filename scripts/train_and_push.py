@@ -146,7 +146,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description="Continuous Training + Auto-Push")
     parser.add_argument("--interval", type=int, default=5, help="Minutes between cycles")
-    parser.add_argument("--push-every", type=int, default=3, help="Push every N cycles")
+    parser.add_argument("--push-every", type=int, default=1, help="Push every N cycles")
     parser.add_argument("--model", type=str, default=MODEL_NAME)
     args = parser.parse_args()
 
