@@ -1,0 +1,40 @@
+# Default configuration
+default_model: "anthropic/claude-sonnet-4-20250514"
+fallback_model: "ollama/llama3"
+temperature: 0.1
+max_tokens: 8192
+max_iterations: 50
+timeout: 300
+
+# Security
+sandbox_enabled: true
+allow_shell: true
+allow_network: true
+audit_log: true
+
+# Agent behavior
+reasoning_depth: "standard"  # shallow, standard, deep
+plan_before_execute: true
+self_reflect: false
+max_retries: 3
+
+# Memory
+memory:
+  short_term_max: 50
+  embedding_model: "all-MiniLM-L6-v2"
+  persist: true
+
+# Tools
+tools:
+  shell:
+    timeout: 120
+    allowed_commands: ["*"]
+  filesystem:
+    allowed_paths: ["*"]
+    blocked_paths: ["/etc/shadow", "/root/.ssh"]
+  git:
+    auto_commit: false
+  sandbox:
+    image: "python:3.12-slim"
+    memory_limit: "512m"
+    network: false
