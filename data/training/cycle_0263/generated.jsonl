@@ -1,0 +1,15 @@
+{"instruction": "Write a Python function to reverse a linked list", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python async function that fetches multiple URLs concurrently", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python class implementing the Observer pattern", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python function to validate an email address using regex", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python decorator that caches function results with TTL", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python function to merge two sorted arrays in O(n) time", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python context manager for database transactions", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python function to parse and evaluate a simple math expression", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python rate limiter using the token bucket algorithm", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python function to find all permutations of a string", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python function to detect cycles in a directed graph", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python function to implement LRU cache from scratch", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python function to implement exponential backoff with jitter", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python generator that reads a large file in chunks", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
+{"instruction": "Write a Python function to diff two dictionaries recursively", "output": "[Cloud error: 'choices']", "model": "DO-GenAI-397B", "timestamp": "20260526_200037", "cycle": 263}
