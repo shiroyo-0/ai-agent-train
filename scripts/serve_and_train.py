@@ -210,7 +210,7 @@ def training_status():
 
 
 # --- Training Loop (background thread) ---
-TASKS = [
+TASK_POOL = [
     "Write a Python function to reverse a linked list",
     "Write a Python async function that fetches multiple URLs concurrently",
     "Write a Python class implementing the Observer pattern",
@@ -227,6 +227,30 @@ TASKS = [
     "Write a Python generator that reads a large file in chunks",
     "Write a Python function to diff two dictionaries recursively",
 ]
+
+import random
+
+def get_tasks_for_cycle(cycle: int) -> list[str]:
+    """Generate fresh tasks each cycle by asking the AI for new ones, falling back to rotated pool."""
+    # Every 5 cycles, ask DO GenAI to generate new tasks
+    if cycle % 5 == 0:
+        try:
+            resp = generate_cloud([{"role": "user", "content": f"Generate 15 unique Python coding tasks. Each task should be different from: {TASK_POOL[:5]}. Return ONLY a JSON array of strings, no explanation."}], temperature=0.9)
+            # Try to parse JSON array from response
+            import re
+            match = re.search(r'\[.*\]', resp, re.DOTALL)
+            if match:
+                new_tasks = json.loads(match.group())
+                if isinstance(new_tasks, list) and len(new_tasks) >= 5:
+                    # Add new unique tasks to pool
+                    for t in new_tasks:
+                        if isinstance(t, str) and t not in TASK_POOL and len(t) > 10:
+                            TASK_POOL.append(t)
+                    return new_tasks[:15]
+        except:
+            pass
+    # Default: random sample from growing pool
+    return random.sample(TASK_POOL, min(15, len(TASK_POOL)))
 
 
 def git_push(cycle: int):
@@ -256,7 +280,8 @@ def training_loop():
 
         start = time.time()
         examples = []
-        for task in TASKS:
+        tasks = get_tasks_for_cycle(cycle)
+        for task in tasks:
             try:
                 resp = generate_cloud([{"role": "user", "content": task}], temperature=0.7)
                 examples.append({"instruction": task, "output": resp.strip(), "model": "DO-GenAI-397B", "timestamp": timestamp, "cycle": cycle})
