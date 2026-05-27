@@ -131,12 +131,8 @@ def chat(req: ChatRequest):
     history = _conversations[req.session_id]
     history.append({"role": "user", "content": req.message})
 
-    # Smart routing: force_cloud or complex → cloud, simple → local
-    msg_len = len(req.message.split())
-    use_cloud = req.force_cloud or msg_len > 10 or any(kw in req.message.lower() for kw in [
-        "jelaskan", "explain", "buatkan", "write", "code", "buat", "kasih",
-        "how to", "gimana", "caranya", "analisis", "review", "tolong",
-    ])
+    # Always use cloud for fast response
+    use_cloud = True
 
     if use_cloud:
         # Use DO GenAI 397B
