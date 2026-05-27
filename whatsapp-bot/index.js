@@ -4,10 +4,10 @@ const http = require('http');
 
 const API = 'http://localhost:8080';
 const BOT_NAME = 'Shiro Nb.1.0';
-const FOOTER = '';
 
 // Track which chats have AI enabled
 const activeChats = new Set();
+let ownerNumber = null;
 
 const client = new Client({
     authStrategy: new LocalAuth({ dataPath: './session' }),
@@ -20,10 +20,12 @@ client.on('qr', qr => {
 });
 
 client.on('ready', () => {
+    ownerNumber = client.info.wid._serialized;
     console.log(`🤖 ${BOT_NAME} WhatsApp Bot ready!`);
+    console.log(`👤 Owner: ${ownerNumber}`);
 });
 
-// Call Shiro API - force cloud (fast)
+// Call Shiro API
 async function askShiro(message, chatId) {
     const data = JSON.stringify({ message, session_id: `wa_${chatId}`, force_cloud: true });
     return new Promise((resolve, reject) => {
@@ -45,51 +47,54 @@ async function askShiro(message, chatId) {
     });
 }
 
-client.on('message', async msg => {
+function isOwner(msg) {
+    return msg.from === ownerNumber || msg.fromMe;
+}
+
+client.on('message_create', async msg => {
     const chat = await msg.getChat();
     const chatId = chat.id._serialized;
     const text = msg.body.trim().toLowerCase();
 
-    // Commands (always active)
+    // Management commands - OWNER ONLY
     if (text === '.ai on') {
+        if (!isOwner(msg)) return;
         activeChats.add(chatId);
-        await msg.reply(`🤖 *${BOT_NAME}* activated!\nSend any message and I'll respond.\nType *.ai off* to disable.${FOOTER}`);
+        await chat.sendMessage(`🤖 *${BOT_NAME}* activated!`);
         return;
     }
-
     if (text === '.ai off') {
+        if (!isOwner(msg)) return;
         activeChats.delete(chatId);
-        await msg.reply(`🤖 *${BOT_NAME}* deactivated.\nType *.ai on* to enable again.`);
+        await chat.sendMessage(`🤖 *${BOT_NAME}* deactivated.`);
         return;
     }
-
     if (text === '.ai status') {
+        if (!isOwner(msg)) return;
         try {
             const res = await fetch(`${API}/training/status`);
             const d = await res.json();
-            const info = d.cycles
-                ? `📊 *Training Status*\nCycles: ${d.cycles}\nLast score: ${d.latest.avg_score}/10\nHQ examples: ${d.latest.high_quality}/${d.latest.examples}`
-                : 'No training data yet.';
-            await msg.reply(`🤖 *${BOT_NAME}*\n${info}${FOOTER}`);
-        } catch (e) {
-            await msg.reply(`⚠️ Server offline`);
-        }
+            await chat.sendMessage(`📊 Cycles: ${d.cycles} | Score: ${d.latest?.avg_score}/10`);
+        } catch (e) { await chat.sendMessage(`⚠️ Server offline`); }
         return;
     }
+
+    // Skip commands
+    if (text.startsWith('.')) return;
 
     // Only respond if AI is enabled for this chat
     if (!activeChats.has(chatId)) return;
 
-    // Skip if message is from bot itself
-    if (msg.fromMe) return;
+    // Skip own management messages, but respond to own questions
+    if (msg.fromMe && text.length < 3) return;
 
-    // Respond with AI
+    // Respond to ALL messages (including own)
     try {
         await chat.sendStateTyping();
         const response = await askShiro(msg.body, chatId);
-        await msg.reply(`${response}${FOOTER}`);
+        await chat.sendMessage(response);
     } catch (e) {
-        await msg.reply(`⚠️ Error: ${e.message}`);
+        await chat.sendMessage(`⚠️ Error: ${e.message}`);
     }
 });
 
