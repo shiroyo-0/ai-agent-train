@@ -131,8 +131,8 @@ def chat(req: ChatRequest):
     history = _conversations[req.session_id]
     history.append({"role": "user", "content": req.message})
 
-    # Always use cloud for fast response
-    use_cloud = True
+    # Use local model (Shiro Nb.1.0)
+    use_cloud = False
 
     if use_cloud:
         # Use DO GenAI 397B

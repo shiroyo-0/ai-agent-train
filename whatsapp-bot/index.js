@@ -21,7 +21,7 @@ client.on('ready', () => {
 });
 
 function askShiro(message, chatId) {
-    const data = JSON.stringify({ message, session_id: `wa_${chatId}`, force_cloud: true });
+    const data = JSON.stringify({ message, session_id: `wa_${chatId}` });
     return new Promise((resolve, reject) => {
         const req = http.request(`${API}/chat`, {
             method: 'POST',
