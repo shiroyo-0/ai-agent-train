@@ -4,7 +4,7 @@ const http = require('http');
 
 const API = 'http://localhost:8080';
 const BOT_NAME = 'Shiro Nb.1.0';
-const FOOTER = '\n\n_⚡ Powered by Shiro Nb.1.0 AI_';
+const FOOTER = '';
 
 // Track which chats have AI enabled
 const activeChats = new Set();
