@@ -6,6 +6,7 @@ const API = 'http://127.0.0.1:8080';
 const BOT_NAME = 'Shiro Nb.1.0';
 
 const activeChats = new Set();
+const processing = new Set(); // anti-loop
 let ownerNumber = null;
 
 const client = new Client({
@@ -37,43 +38,62 @@ function askShiro(message, chatId) {
     });
 }
 
-// Only listen to incoming messages (NOT own sent messages)
-client.on('message', async msg => {
-    const chat = await msg.getChat();
-    const chatId = chat.id._serialized;
-    const text = msg.body.trim().toLowerCase();
-    const senderIsOwner = msg.from === ownerNumber;
-
-    // Commands - owner only
-    if (text === '.ai on' && senderIsOwner) {
-        activeChats.add(chatId);
-        await chat.sendMessage(`🤖 *${BOT_NAME}* activated!`);
-        return;
-    }
-    if (text === '.ai off' && senderIsOwner) {
-        activeChats.delete(chatId);
-        await chat.sendMessage(`🤖 *${BOT_NAME}* deactivated.`);
-        return;
-    }
-    if (text === '.ai status' && senderIsOwner) {
-        try {
-            const res = await fetch(`${API}/training/status`);
-            const d = await res.json();
-            await chat.sendMessage(`📊 Cycles: ${d.cycles} | Score: ${d.latest?.avg_score}/10`);
-        } catch(e) { await chat.sendMessage('⚠️ Offline'); }
-        return;
-    }
-
-    if (text.startsWith('.')) return;
-    if (!activeChats.has(chatId)) return;
-
-    // Respond
+client.on('message_create', async msg => {
     try {
+        const chatId = msg.from || msg.to;
+        const text = (msg.body || '').trim();
+        const isFromMe = msg.fromMe;
+
+        console.log(`[MSG] from=${msg.from} fromMe=${isFromMe} text="${text.slice(0,30)}"`);
+
+        // Anti-loop: skip bot's own responses
+        if (isFromMe && !text.startsWith('.ai')) return;
+
+        const chat = await msg.getChat();
+        const realChatId = chat.id._serialized;
+
+        // Owner check
+        const senderIsOwner = isFromMe || msg.from === ownerNumber;
+
+        // Commands
+        if (text.toLowerCase() === '.ai on' && senderIsOwner) {
+            activeChats.add(realChatId);
+            await chat.sendMessage(`🤖 *${BOT_NAME}* activated!`);
+            console.log(`[ON] ${realChatId}`);
+            return;
+        }
+        if (text.toLowerCase() === '.ai off' && senderIsOwner) {
+            activeChats.delete(realChatId);
+            await chat.sendMessage(`🤖 *${BOT_NAME}* deactivated.`);
+            return;
+        }
+        if (text.toLowerCase() === '.ai status' && senderIsOwner) {
+            try {
+                const res = await fetch(`${API}/training/status`);
+                const d = await res.json();
+                await chat.sendMessage(`📊 Cycles: ${d.cycles} | Score: ${d.latest?.avg_score}/10`);
+            } catch(e) { await chat.sendMessage('⚠️ Offline'); }
+            return;
+        }
+
+        // Skip if not activated or is a command
+        if (text.startsWith('.')) return;
+        if (!activeChats.has(realChatId)) return;
+        if (isFromMe) return; // don't respond to own non-command messages
+
+        // Anti-duplicate
+        const msgId = msg.id._serialized;
+        if (processing.has(msgId)) return;
+        processing.add(msgId);
+        setTimeout(() => processing.delete(msgId), 30000);
+
+        // Respond
+        console.log(`[AI] Responding to: "${text.slice(0,50)}"`);
         await chat.sendStateTyping();
-        const response = await askShiro(msg.body, chatId);
+        const response = await askShiro(text, realChatId);
         await chat.sendMessage(response);
     } catch(e) {
-        await chat.sendMessage(`⚠️ ${e.message}`);
+        console.error('[ERR]', e.message);
     }
 });
 
