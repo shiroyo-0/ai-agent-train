@@ -11,7 +11,7 @@ const activeChats = new Set();
 
 const client = new Client({
     authStrategy: new LocalAuth({ dataPath: './session' }),
-    puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] }
+    puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'], executablePath: '/usr/bin/chromium-browser' }
 });
 
 client.on('qr', qr => {
