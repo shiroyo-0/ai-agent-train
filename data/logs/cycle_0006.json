@@ -1,0 +1,9 @@
+{
+  "cycle": 6,
+  "timestamp": "20260525_124503",
+  "model": "DO-GenAI-397B",
+  "examples": 15,
+  "high_quality": 7,
+  "avg_score": 4.13,
+  "elapsed_seconds": 360.1
+}

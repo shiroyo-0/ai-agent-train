@@ -1,0 +1,9 @@
+{
+  "cycle": 1,
+  "timestamp": "20260525_103050",
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "examples": 30,
+  "high_quality": 23,
+  "avg_score": 6.9,
+  "elapsed_seconds": 737.3
+}
