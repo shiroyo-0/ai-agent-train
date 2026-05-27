@@ -2,7 +2,7 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const http = require('http');
 
-const API = 'http://localhost:8080';
+const API = 'http://127.0.0.1:8080';
 const BOT_NAME = 'Shiro Nb.1.0';
 
 // Track which chats have AI enabled
