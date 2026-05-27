@@ -23,14 +23,14 @@ client.on('ready', () => {
     console.log(`🤖 ${BOT_NAME} WhatsApp Bot ready!`);
 });
 
-// Call Shiro API
+// Call Shiro API - force cloud (fast)
 async function askShiro(message, chatId) {
-    const data = JSON.stringify({ message, session_id: `wa_${chatId}` });
+    const data = JSON.stringify({ message, session_id: `wa_${chatId}`, force_cloud: true });
     return new Promise((resolve, reject) => {
         const req = http.request(`${API}/chat`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Content-Length': data.length },
-            timeout: 300000,
+            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) },
+            timeout: 60000,
         }, res => {
             let body = '';
             res.on('data', chunk => body += chunk);

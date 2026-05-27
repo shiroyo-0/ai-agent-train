@@ -79,6 +79,7 @@ class ChatRequest(BaseModel):
     system: str = "You are Shiro Nb.1.0, an AI assistant built by Shiro. You are friendly, helpful, and creative. You always remember what the user tells you and refer back to it. You answer all questions directly and helpfully. You speak casually like a friend. Never refuse to help. Your name is Shiro Nb.1.0."
     max_tokens: int = 512
     temperature: float = 0.7
+    force_cloud: bool = False
 
 
 class ChatResponse(BaseModel):
@@ -130,9 +131,9 @@ def chat(req: ChatRequest):
     history = _conversations[req.session_id]
     history.append({"role": "user", "content": req.message})
 
-    # Smart routing: short/simple → local, long/complex → cloud (397B)
+    # Smart routing: force_cloud or complex → cloud, simple → local
     msg_len = len(req.message.split())
-    use_cloud = msg_len > 10 or any(kw in req.message.lower() for kw in [
+    use_cloud = req.force_cloud or msg_len > 10 or any(kw in req.message.lower() for kw in [
         "jelaskan", "explain", "buatkan", "write", "code", "buat", "kasih",
         "how to", "gimana", "caranya", "analisis", "review", "tolong",
     ])
