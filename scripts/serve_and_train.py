@@ -131,22 +131,24 @@ def chat(req: ChatRequest):
     history = _conversations[req.session_id]
     history.append({"role": "user", "content": req.message})
 
-    # Use local model (Shiro Nb.1.0)
-    use_cloud = False
+    # Try local model first (30s timeout), fallback to cloud if slow
+    prompt = f"<|im_start|>system\n{req.system}<|im_end|>\n"
+    for msg in history[-20:]:
+        prompt += f"<|im_start|>{msg['role']}\n{msg['content']}<|im_end|>\n"
+    prompt += "<|im_start|>assistant\n"
 
-    if use_cloud:
-        # Use DO GenAI 397B
-        messages = []
-        for msg in history[-20:]:
-            messages.append({"role": msg["role"], "content": msg["content"]})
-        response = generate_cloud(messages, temperature=req.temperature)
+    if not req.force_cloud:
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            future = pool.submit(generate_local, prompt, 128, req.temperature)
+            try:
+                response = future.result(timeout=30)
+            except concurrent.futures.TimeoutError:
+                messages = [{"role": m["role"], "content": m["content"]} for m in history[-20:]]
+                response = generate_cloud(messages, temperature=req.temperature)
     else:
-        # Use local 1.5B (fast)
-        prompt = f"<|im_start|>system\n{req.system}<|im_end|>\n"
-        for msg in history[-20:]:
-            prompt += f"<|im_start|>{msg['role']}\n{msg['content']}<|im_end|>\n"
-        prompt += "<|im_start|>assistant\n"
-        response = generate_local(prompt, max_new_tokens=128, temperature=req.temperature)
+        messages = [{"role": m["role"], "content": m["content"]} for m in history[-20:]]
+        response = generate_cloud(messages, temperature=req.temperature)
 
     history.append({"role": "assistant", "content": response})
     if len(history) > 50:
