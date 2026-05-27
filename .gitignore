@@ -17,3 +17,5 @@ data/embeddings/
 models/finetuned/
 *.bak
 .DS_Store
+whatsapp-bot/session/
+whatsapp-bot/node_modules/
